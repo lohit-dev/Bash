@@ -1,2 +1,4 @@
 *.log
+.bash_history
+.bash-backup-*/
 

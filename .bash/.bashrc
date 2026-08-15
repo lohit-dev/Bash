@@ -23,7 +23,11 @@ esac
 
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
-source ~/.local/share/blesh/ble.sh --attach=none
+# -o internal_suppress_bash_output=1 keeps Bash's own stdout/stderr (e.g. the
+# "TERM: changed, rebinding..." flash) from leaking to the terminal during
+# ble-attach/reload. It's ble.sh's documented default already, but setting it
+# explicitly here guarantees nothing later in this file can turn it off.
+source ~/.local/share/blesh/ble.sh --attach=none -o internal_suppress_bash_output=1
 
 # ================================= fastfetch ================================= #
 if command -v fastfetch &> /dev/null; then
@@ -159,6 +163,11 @@ fi
 # ================================= completion and autocd ================================= #
 bind "set completion-ignore-case on"
 shopt -s autocd
+# Makes `echo` expand backslash escapes (\e, \n, \t, ...) by default, same as
+# always passing `echo -e`. Without this, `echo '\e[1;36mHello\e[0m'` prints
+# the escape sequence literally instead of coloring the text - you'd need
+# `echo -e` or ANSI-C quoting ($'...') every time otherwise.
+shopt -s xpg_echo
 unset rc
 
 
@@ -172,7 +181,12 @@ alias hell='_thefuck_init && hell'
 
 # For zoxide integration with FZF (if zoxide is installed)
 if command -v zoxide &> /dev/null; then
-    eval "$(zoxide init bash --cmd cd)"
+    # NOTE: intentionally NOT --cmd cd. Overriding `cd` globally makes every
+    # internal `cd` call (ble.sh's reload/reattach, other tools, etc.) go
+    # through zoxide's fuzzy matcher instead of a literal path lookup, which
+    # is what causes the "zoxide: no match found" noise right after `[ble:
+    # reload]`. Use `z <query>` for fuzzy-jumping and leave `cd` alone.
+    eval "$(zoxide init bash)"
     alias zi='zoxide query -i | xargs -r eza --color=always --icons=always'
     _ZO_DOCTOR=0
 fi

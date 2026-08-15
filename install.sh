@@ -283,48 +283,66 @@ fi
 
 msg act "Installing bash files..." && sleep 0.5
 
-# Backup existing files
 BACKUP_DIR="$HOME/.bash-backup-${USER}"
-for item in "$HOME/.bash" "$HOME/.bashrc"; do
-    if [[ -d $item ]] || [[ -f $item ]]; then
-        mkdir -p "$BACKUP_DIR"
-        timestamp=$(date +%I:%M:%S%p)
-        if [[ -d $item ]]; then
-            msg att "A ${green}.bash${end} directory is available. Backing it up..." 
-            mv "$item" "$BACKUP_DIR/.bash-$timestamp" 2>&1 | tee -a "$log"
-        elif [[ -f $item ]]; then
-            msg att "A ${cyan}.bashrc${end} file is available. Backing it up..." 
-            mv "$item" "$BACKUP_DIR/.bashrc-$timestamp" 2>&1 | tee -a "$log"
-        fi
-    fi
-done
 
-# Copy custom .bash directory
+# Copy custom .bash directory (skip if it's already an up-to-date copy of
+# what we're installing, so re-running this script doesn't touch anything).
 if [[ -d "$dir/.bash" ]]; then
-    cp -r "$dir/.bash" ~/ 2>&1 | tee -a "$log"
-    [[ -f "$HOME/.bash/.bashrc" ]] && ln -sf ~/.bash/.bashrc ~/.bashrc 2>&1 | tee -a "$log"
+    if [[ -d "$HOME/.bash" ]] && diff -rq "$dir/.bash" "$HOME/.bash" &>/dev/null; then
+        msg skp "~/.bash is already up to date, leaving it alone..."
+    else
+        if [[ -d "$HOME/.bash" ]]; then
+            mkdir -p "$BACKUP_DIR"
+            msg att "A ${green}.bash${end} directory is available. Backing it up..."
+            mv "$HOME/.bash" "$BACKUP_DIR/.bash-$(date +%I:%M:%S%p)" 2>&1 | tee -a "$log"
+        fi
+        cp -r "$dir/.bash" ~/ 2>&1 | tee -a "$log"
+    fi
 else
     msg err "Could not find $dir/.bash to copy!"
 fi
 
-# macOS's Terminal.app (and most other terminal emulators there) launch
-# *login* shells, which read ~/.bash_profile instead of ~/.bashrc. Without
-# this, none of the aliases/functions/prompt would ever load on macOS.
-if [[ "$OS_TYPE" == "Darwin" && -f "$HOME/.bashrc" ]]; then
-    PROFILE="$HOME/.bash_profile"
-    SOURCE_LINE='[[ -f "$HOME/.bashrc" ]] && . "$HOME/.bashrc"'
-    if [[ -f "$PROFILE" ]]; then
-        if ! grep -qF '.bashrc' "$PROFILE"; then
-            msg act "Adding ~/.bashrc sourcing to your existing ~/.bash_profile..."
-            printf '\n# Load ~/.bashrc for interactive login shells (added by shell-ninja/Bash)\n%s\n' "$SOURCE_LINE" >> "$PROFILE"
-        else
-            msg skp "~/.bash_profile already references .bashrc, leaving it alone..."
-        fi
-    else
-        msg act "Creating ~/.bash_profile to source ~/.bashrc (needed on macOS login shells)..."
-        printf '# Load ~/.bashrc for interactive login shells (added by shell-ninja/Bash)\n%s\n' "$SOURCE_LINE" > "$PROFILE"
+# ================= Symlink every dotfile from ~/.bash into $HOME ================= #
+# Everything lives inside ~/.bash and is exposed via a symlink in $HOME, so
+# re-running this script is a no-op once the links are in place. If a real
+# file/dir is already sitting where the symlink should go, it's preserved
+# by moving it into ~/.bash first (matching it) or backed up if ~/.bash
+# already ships its own version.
+link_dotfile() {
+    local name="$1"
+    local target="$HOME/.bash/$name"
+    local link="$HOME/$name"
+
+    # Already linked correctly - nothing to do.
+    if [[ -L "$link" && "$(readlink "$link")" == "$target" ]]; then
+        msg skp "$name already linked, leaving it alone..."
+        return 0
     fi
-fi
+
+    if [[ ! -e "$target" ]]; then
+        if [[ -e "$link" && ! -L "$link" ]]; then
+            # No shipped version - migrate the local real file into ~/.bash
+            # so it becomes the source of truth (e.g. .bash_history).
+            msg act "Moving existing $name into ~/.bash/ ..."
+            mv "$link" "$target" 2>&1 | tee -a "$log"
+        else
+            touch "$target"
+        fi
+    elif [[ -e "$link" && ! -L "$link" ]]; then
+        # Both a shipped version and a real local file exist - keep the
+        # shipped one, back the local one up.
+        mkdir -p "$BACKUP_DIR"
+        msg att "Found an existing $name, backing it up..."
+        mv "$link" "$BACKUP_DIR/$name-$(date +%I:%M:%S%p)" 2>&1 | tee -a "$log"
+    fi
+
+    ln -sf "$target" "$link" 2>&1 | tee -a "$log"
+    msg dn "Linked ~/$name -> ~/.bash/$name"
+}
+
+for dotfile in .bashrc .bash_profile .profile .blerc .bash_history; do
+    link_dotfile "$dotfile"
+done
 
 # Update scripts and install ble.sh
 if [ -d ~/.bash ]; then

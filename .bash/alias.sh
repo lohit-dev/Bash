@@ -18,15 +18,15 @@ source ~/.bash/functions.sh
 #==============================================================================
 
 ## list ##
-alias ls='eza -T --level=1 --color=always --icons=always --group-directories-first'
-alias la='eza -a --icons=always --group-directories-first'
+alias la='eza -T --level=1 --color=always --icons=always --group-directories-first'
+alias ls='eza -a --icons=always --group-directories-first'
 alias ll='eza -l -a --icons=always --no-time --group-directories-first'
 alias lst='eza -T --level=2 --color=always --icons=always --group-directories-first'
 alias lsf='eza -f -a --color=always --icons=always --group-directories-first'
 alias lstd='eza -D -T --level=2 --color=always --icons=always --group-directories-first'
 alias tree='eza -T --level=3 --color=always --icons=always --group-directories-first'
 
-alias cat='bat --style header --style snip --style changes --style header'
+alias cat='bat --style header --style snip --style changes'
 
 ## grub update ##
 alias grubup="sudo update-grub" # Arch, Ubuntu
@@ -61,7 +61,9 @@ alias disk='fn_resources __disk'
 alias find='nvim $(fzf --preview="bat --color=always {}")'
 
 ## editors & IDEs ##
-alias nvm='nvim .'
+alias chad="NVIM_APPNAME=chad nvim"
+alias vi="nvim"
+alias vim="nvim"
 # On macOS `open` is a core system command (opens files/URLs/apps in the
 # default GUI app) - don't shadow it. Use `edit` there instead.
 if [[ "$(uname -s)" == "Darwin" ]]; then
@@ -80,14 +82,23 @@ alias install='fn_install'
 alias remove='fn_uninstall'
 
 ## git ##
+alias gst='git status'
+alias ga='git add'
+alias gaa='git add .'
 alias add='git add .'
+alias gc='git commit -m'
+alias commit='git commit -m'
+alias gp='git push'
+alias gpl='git pull'
+alias pull='git pull'
+alias gco='git checkout'
+alias gb='git branch'
+alias gd='git diff'
 alias clone='git clone'
 alias cloned='git clone --depth=1'
 alias branch='git branch -M main'
-alias commit='git commit -m'
 alias pushm='git push -u origin main'
 alias pusho='git push origin'
-alias pull='git pull'
 alias info='git_info'
 
 ## misc ##

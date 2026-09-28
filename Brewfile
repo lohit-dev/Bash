@@ -43,6 +43,7 @@ brew "websocat"
 brew "zoxide"
 
 cask "bruno"
+cask "android-studio"
 cask "codex"
 cask "font-jetbrains-mono"
 cask "font-maple-mono-nf"

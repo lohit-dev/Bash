@@ -68,7 +68,7 @@ chmod +x restore-macos.sh
 ./restore-macos.sh
 ```
 
-This restores the Homebrew formulae and cask applications listed in `Brewfile`, then installs the Bash configuration. It intentionally excludes credentials, shell history, SSH keys, browser data, and project files.
+This is the intended fresh-Mac workflow: it installs Homebrew if needed, restores the formulae and cask applications listed in `Brewfile`, then installs the Bash configuration without prompts. It intentionally excludes credentials, shell history, SSH keys, browser data, project files, and settings stored by third-party apps.
 
 ### Direct Installation
 
@@ -77,7 +77,7 @@ You can directly run the command below, and it will automatically clone the repo
 - Run this command in your terminal:
 
 ```bash
-bash <(curl https://raw.githubusercontent.com/shell-ninja/Bash/main/direct_install.sh)
+bash <(curl -fsSL https://raw.githubusercontent.com/lohit-dev/Bash/master/direct_install.sh)
 ```
 
 ### Manual Installation
@@ -85,7 +85,7 @@ bash <(curl https://raw.githubusercontent.com/shell-ninja/Bash/main/direct_insta
 - Open terminal and run these commands.
 
 ```bash
-git clone --depth=1 https://github.com/shell-ninja/Bash.git
+git clone --depth=1 https://github.com/lohit-dev/Bash.git
 cd Bash
 chmod +x install.sh
 ./install.sh

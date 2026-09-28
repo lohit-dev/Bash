@@ -71,7 +71,7 @@ install_git && printf "${cyan}::${end} Git was installed..\n"
 sleep 1
 
 printf "\n${green}**${end} Cloning the scripts...\n" && sleep 1 && clear
-git clone --depth=1 https://github.com/shell-ninja/Bash.git "$HOME/.cache/Bash" &> /dev/null
+git clone --depth=1 https://github.com/lohit-dev/Bash.git "$HOME/.cache/Bash" &> /dev/null
 
 if [[ -d "$HOME/.cache/Bash" ]]; then
     cd "$HOME/.cache/Bash"

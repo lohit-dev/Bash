@@ -27,7 +27,9 @@ esac
 # "TERM: changed, rebinding..." flash) from leaking to the terminal during
 # ble-attach/reload. It's ble.sh's documented default already, but setting it
 # explicitly here guarantees nothing later in this file can turn it off.
-source ~/.local/share/blesh/ble.sh --attach=none -o internal_suppress_bash_output=1
+if [[ -f "$HOME/.local/share/blesh/ble.sh" ]]; then
+    source "$HOME/.local/share/blesh/ble.sh" --attach=none -o internal_suppress_bash_output=1
+fi
 
 # ================================= fastfetch ================================= #
 if command -v fastfetch &> /dev/null; then

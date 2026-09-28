@@ -49,6 +49,10 @@ touch "$log"
 
 # OS detection
 OS_TYPE="$(uname -s)"
+ASSUME_YES=0
+if [[ "${1:-}" == "--yes" ]]; then
+    ASSUME_YES=1
+fi
 
 # Required packages
 common_packages=(
@@ -143,13 +147,23 @@ fi
 # macOS gets its fonts (incl. Nerd Fonts) via Homebrew casks below, so the
 # manual JetBrains Mono Nerd Font download only applies to Linux.
 if [[ "$OS_TYPE" != "Darwin" ]]; then
-    msg ask "Would you like to install a Nerd font? In this case, the ${yellow}JetBrains Mono Nerd Font${end}? It is important. [ y/n ]"
-    read -r -p "Select: " font
+    if [[ "$ASSUME_YES" -eq 1 ]]; then
+        font=y
+    else
+        msg ask "Would you like to install a Nerd font? In this case, the ${yellow}JetBrains Mono Nerd Font${end}? It is important. [ y/n ]"
+        read -r -p "Select: " font
+    fi
     echo
 fi
 
-msg ask "Would you like to use ${cyan}starship${end} as the bash prompt? [ y/n ]"
-read -r -p "Select: " prmpt
+if [[ "$ASSUME_YES" -eq 1 ]]; then
+    # The shipped configuration starts with its native prompt; `style` can
+    # enable Starship later without changing the installer interactively.
+    prmpt=n
+else
+    msg ask "Would you like to use ${cyan}starship${end} as the bash prompt? [ y/n ]"
+    read -r -p "Select: " prmpt
+fi
 echo
 
 # Helper functions for packages

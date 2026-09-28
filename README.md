@@ -68,7 +68,7 @@ chmod +x restore-macos.sh
 ./restore-macos.sh
 ```
 
-This is the intended fresh-Mac workflow: it installs Homebrew if needed, restores the formulae and cask applications listed in `Brewfile`, then installs the Bash configuration without prompts. It intentionally excludes credentials, shell history, SSH keys, browser data, project files, and settings stored by third-party apps.
+This is the intended fresh-Mac workflow: it installs Homebrew if needed, restores the formulae and cask applications listed in `Brewfile`, then installs Bash, Ghostty, tmux, btop, VS Code settings/extensions, and the Neovim submodule without prompts. It intentionally excludes credentials, shell history, SSH keys, browser data, project files, and account/session data.
 
 ### Direct Installation
 

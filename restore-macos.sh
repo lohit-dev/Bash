@@ -26,4 +26,33 @@ brew bundle --file="$repo_dir/Brewfile"
 printf '\nInstalling Bash configuration...\n'
 "$repo_dir/install.sh" --yes
 
+printf '\nInstalling portable app settings...\n'
+git -C "$repo_dir" submodule update --init --recursive
+
+mkdir -p "$HOME/.config/ghostty" "$HOME/.config/btop" "$HOME/Library/Application Support/Code/User"
+cp -R "$repo_dir/config/ghostty/." "$HOME/.config/ghostty/"
+cp "$repo_dir/config/btop/btop.conf" "$HOME/.config/btop/btop.conf"
+cp "$repo_dir/config/tmux/tmux.conf" "$HOME/.tmux.conf"
+cp "$repo_dir/config/vscode/settings.json" "$HOME/Library/Application Support/Code/User/settings.json"
+
+vscode_bin="/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code"
+if [[ -x "$vscode_bin" ]]; then
+    while IFS= read -r extension; do
+        [[ -n "$extension" ]] && "$vscode_bin" --install-extension "$extension" --force
+    done < "$repo_dir/config/vscode/extensions.txt"
+fi
+
+if [[ -d "$repo_dir/config/nvim" ]]; then
+    mkdir -p "$HOME/.config"
+    if [[ -e "$HOME/.config/nvim" && ! -L "$HOME/.config/nvim" ]]; then
+        mv "$HOME/.config/nvim" "$HOME/.config/nvim.backup-$(date +%Y%m%d-%H%M%S)"
+    fi
+    ln -sfn "$repo_dir/config/nvim" "$HOME/.config/nvim"
+fi
+
+if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
+    git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
+fi
+"$HOME/.tmux/plugins/tpm/bin/install_plugins" || true
+
 printf '\nRestore complete. This does not include credentials, history, SSH keys, browser data, project files, or settings stored by third-party apps.\n'

@@ -1,0 +1,24 @@
+clipboard-read = allow
+clipboard-write = allow
+shell-integration = bash
+shell-integration-features = sudo,title,no-cursor,ssh-terminfo
+term = xterm-ghostty
+theme = Aquarium
+keybind = cmd+s>r=reload_config
+font-size = 17
+font-family = "Maple Mono NF"
+bold-is-bright = true
+font-thicken = true
+font-style-italic = true
+font-synthetic-style = true
+cursor-style-blink = true
+background-blur = true
+mouse-hide-while-typing = true
+macos-non-native-fullscreen = false
+macos-auto-secure-input = true
+background-opacity = 0.85
+background-blur = 80
+window-padding-x = 10
+window-padding-y = 10
+window-padding-balance = true
+window-vsync = true

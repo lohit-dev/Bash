@@ -76,6 +76,14 @@ if [[ "$(uname -s)" == "Darwin" ]]; then
         eval "$(/usr/local/bin/brew shellenv bash)"
     fi
 
+    # Go workspace binaries.
+    if command -v go &> /dev/null; then
+        export GOPATH="$(go env GOPATH)"
+        if [[ ":$PATH:" != *":$GOPATH/bin:"* ]]; then
+            export PATH="$GOPATH/bin:$PATH"
+        fi
+    fi
+
     # bun
     if [[ -d "$HOME/.bun" ]]; then
         export BUN_INSTALL="$HOME/.bun"
@@ -90,14 +98,27 @@ if [[ "$(uname -s)" == "Darwin" ]]; then
     # Homebrew keg-only formulae aren't symlinked into PATH automatically
     # (e.g. `ruby`, `python@x.y`, `postgresql@x` all fall in this bucket).
     if [[ -n "$HOMEBREW_PREFIX" ]]; then
-        for keg in ruby "python@3.14" "postgresql@18"; do
+        for keg in "openjdk@21" "node@22" ruby "python@3.14" "postgresql@18"; do
             keg_bin="$HOMEBREW_PREFIX/opt/$keg/bin"
             if [[ -d "$keg_bin" ]] && [[ ":$PATH:" != *":$keg_bin:"* ]]; then
                 export PATH="$keg_bin:$PATH"
             fi
         done
+        [[ -d "$HOMEBREW_PREFIX/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home" ]] && export JAVA_HOME="$HOMEBREW_PREFIX/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home"
         unset keg keg_bin
     fi
+
+    # Android Studio's SDK, when it is installed.
+    android_sdk="$HOME/Library/Android/sdk"
+    if [[ -d "$android_sdk" ]]; then
+        export ANDROID_HOME="$android_sdk"
+        export ANDROID_SDK_ROOT="$android_sdk"
+        for android_bin in "$android_sdk/platform-tools" "$android_sdk/emulator" "$android_sdk/cmdline-tools/latest/bin"; do
+            [[ -d "$android_bin" && ":$PATH:" != *":$android_bin:"* ]] && export PATH="$android_bin:$PATH"
+        done
+        unset android_bin
+    fi
+    unset android_sdk
 fi
 
 # User specific aliases and functions
@@ -234,4 +255,3 @@ bind "set vi-ins-mode-string "
 # ================================= ble-attach ================================= #
 [[ ${BLE_VERSION-} ]] && ble-attach
 # source "$HOME/.cargo/env"
-

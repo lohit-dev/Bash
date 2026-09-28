@@ -59,6 +59,17 @@ Why don't you give it a try?
 
 ## Installation
 
+### Restore this Mac
+
+For a fresh macOS installation, clone this repository and run:
+
+```bash
+chmod +x restore-macos.sh
+./restore-macos.sh
+```
+
+This restores the Homebrew formulae and cask applications listed in `Brewfile`, then installs the Bash configuration. It intentionally excludes credentials, shell history, SSH keys, browser data, and project files.
+
 ### Direct Installation
 
 You can directly run the command below, and it will automatically clone the repository and install the config. Before that, make sure you have `curl` installed in your system. If not, simply install it using `pacman`, `dnf`, `zypper` or `apt`.

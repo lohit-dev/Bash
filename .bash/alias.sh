@@ -116,3 +116,6 @@ alias style="~/.bash/change_style.sh"
 
 ## permissions ##
 alias exe='chmod +x'
+
+## extras ##
+alias lg='lazygit'
